@@ -1,15 +1,20 @@
-from polygon import RESTClient
+from alpha_vantage.timeseries import TimeSeries
+from alpha_vantage.techindicators import TechIndicators
+from alpha_vantage.sectorperformance import SectorPerformances
+from alpha_vantage.cryptocurrencies import CryptoCurrencies
+from pprint import pprint
+import asyncio
+from alpha_vantage.async_support.timeseries import TimeSeries
+import os
+import requests
+from apikey import api_key
+#cc = ForeignExchange(key=api_key)
+#data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
+#pprint(data)
 
 
-def main():
-    key = "your api key"
+ts = TimeSeries(key=api_key)
+data, meta_data = ts.get_quote_endpoint('GOOGL')
 
-    # RESTClient can be used as a context manager to facilitate closing the underlying http session
-    # https://requests.readthedocs.io/en/master/user/advanced/#session-objects
-    with RESTClient(key) as client:
-        resp = client.stocks_equities_daily_open_close("AAPL", "2018-03-02")
-        print(f"On: {resp.from_} Apple opened at {resp.open} and closed at {resp.close}")
+pprint(data)
 
-
-if __name__ == '__main__':
-    main()
