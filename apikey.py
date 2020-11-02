@@ -1,1 +1,1 @@
-api_key = 'GET UR OWN '
+api_key = 'use ur own'
