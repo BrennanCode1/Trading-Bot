@@ -8,18 +8,17 @@ import requests
 import time
 
 
-#ts = TimeSeries(key=api_key, output_format='pandas')
-#data, meta_data = ts.get_quote_endpoint(symbol='AAPL')
 
-
-#for label, row in data.iterrows():
-#    print(row["05. price"])
 i=0
+lastPrice=0
 for count in range (5):
     cc = ForeignExchange(key=api_key)
     data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
-    currentPrice=data["5. Exchange Rate"]
-    print(currentPrice)
+    currentPrice=float (data["5. Exchange Rate"])
+    compare = currentPrice - lastPrice
+    print(compare)
+    lastPrice=currentPrice
+    print(lastPrice)
     time.sleep (20)
     i +=1
 
