@@ -2,46 +2,50 @@ from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.foreignexchange import ForeignExchange
 from pprint import pprint
 from apikey import api_key
-import threading 
+from multiprocessing import Process
+import sys
 import pandas as pd
 import json 
 import requests
 import time
 
+i2=0
+i=0 
+lastPrice = 1
 
 def currentPriceApiCall():
-    for i in range (5):
-        threading.Timer(20.0, currentPriceApiCall).start()
-        cc = ForeignExchange(key=api_key)
-        data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
-        currentPrice=float (data["5. Exchange Rate"])
-        i+=1
-        print ("Current: " , currentPrice)
+    cc = ForeignExchange(key=api_key)
+    data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
+    currentPrice=float (data["5. Exchange Rate"]) 
     return currentPrice
 
 def fiveMinPriceApiCall():
-    for i2 in range (1):
-        threading.Timer(100.0, fiveMinPriceApiCall).start()
+    while True:
         cc = ForeignExchange(key=api_key)
         data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
         fiveMinPrice=float (data["5. Exchange Rate"])
-        print ("Five: " , fiveMinPrice)
-        i2+=1
-    return fiveMinPrice    
+        time.sleep(60)
+        return fiveMinPrice
+       
 
-i2=0
-i=0
-lastPrice=1
-
-currentPriceApiCall()
-fiveMinPriceApiCall()
-
-currentPrice=currentPriceApiCall()
-compare = (lastPrice / currentPrice) * 100 
-print("compare",compare)
-lastPrice=currentPrice
-print("lastprice",lastPrice)
+def calculate():
+    while True:
+        currentPrice= currentPriceApiCall()
+        fiveMinPrice = fiveMinPriceApiCall()
+        compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice  
+        print("current",currentPrice)
+        print("compare",compare)
+        print("fivemin",fiveMinPrice)
+        time.sleep(20)
 
 
+
+if __name__=='__main__':
+    p1 = Process(target=calculate)
+    p1.start()
+    p2 = Process(target=fiveMinPriceApiCall)
+    p2.start()
+    p1.join()
+    p2.join()
 
 
