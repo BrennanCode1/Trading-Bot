@@ -11,9 +11,8 @@ import pandas as pd
 import json 
 import requests
 
-timeout=time.time() + 60*5
 timeout1=time.time() + 60*.3
-timeout2=time.time() + 60*2
+timeout2=time.time() + 60*5
  
 bank = 500
 owned =0 
@@ -84,7 +83,7 @@ while True:
     if time.time()>timeout2:
         fiveMinPrice=fiveMinPriceApiCall()
         print ("FiveminPrice has been updated")
-        timeout2=time.time() + 60*2
+        timeout2=time.time() + 60*5
     time.sleep(20)
 
         
