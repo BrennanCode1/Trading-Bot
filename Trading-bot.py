@@ -3,11 +3,13 @@ from alpha_vantage.foreignexchange import ForeignExchange
 from pprint import pprint
 from apikey import api_key
 from multiprocessing import Process
+from threading import Timer
 import sys
 import pandas as pd
 import json 
 import requests
 import time
+timeout=time.time() + 60*1
 
 i2=0
 i=0 
@@ -20,32 +22,34 @@ def currentPriceApiCall():
     return currentPrice
 
 def fiveMinPriceApiCall():
-    while True:
-        cc = ForeignExchange(key=api_key)
-        data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
-        fiveMinPrice=float (data["5. Exchange Rate"])
-        time.sleep(60)
-        return fiveMinPrice
+    cc = ForeignExchange(key=api_key)
+    data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
+    fiveMinPrice=float (data["5. Exchange Rate"])
+    print("Completed")
+    return fiveMinPrice
        
 
 def calculate():
+    fiveMinPrice=fiveMinPriceApiCall()
     while True:
         currentPrice= currentPriceApiCall()
-        fiveMinPrice = fiveMinPriceApiCall()
         compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice  
         print("current",currentPrice)
         print("compare",compare)
         print("fivemin",fiveMinPrice)
         time.sleep(20)
+        if time.time()>timeout:
+            fiveMinPrice=fiveMinPriceApiCall()
 
 
 
-if __name__=='__main__':
-    p1 = Process(target=calculate)
-    p1.start()
-    p2 = Process(target=fiveMinPriceApiCall)
-    p2.start()
-    p1.join()
-    p2.join()
+calculate()
+#if __name__=='__main__':
+    #p1 = Process(target=calculate)
+    #p1.start()
+    #p2 = Process(target=fiveMinPriceApiCall)
+    #p2.start()
+    #p1.join()
+    #p2.join()
 
 
