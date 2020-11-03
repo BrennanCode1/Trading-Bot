@@ -9,11 +9,11 @@ import pandas as pd
 import json 
 import requests
 import time
-timeout=time.time() + 60*1
 
-i2=0
-i=0 
-lastPrice = 1
+
+timeout=time.time() + 60*1
+ 
+
 
 def currentPriceApiCall():
     cc = ForeignExchange(key=api_key)
