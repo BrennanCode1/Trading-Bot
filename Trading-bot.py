@@ -10,10 +10,12 @@ import json
 import requests
 import time
 
-
-timeout=time.time() + 60*1
+timeout=time.time() + 60*5
+timeout1=time.time() + 60*.5
+timeout2=time.time() + 60*2
  
-
+bank = 500
+owned =0 
 
 def currentPriceApiCall():
     cc = ForeignExchange(key=api_key)
@@ -25,31 +27,69 @@ def fiveMinPriceApiCall():
     cc = ForeignExchange(key=api_key)
     data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
     fiveMinPrice=float (data["5. Exchange Rate"])
-    print("Completed")
     return fiveMinPrice
        
 
-def calculate():
-    fiveMinPrice=fiveMinPriceApiCall()
-    while True:
-        currentPrice= currentPriceApiCall()
-        compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice  
-        print("current",currentPrice)
-        print("compare",compare)
-        print("fivemin",fiveMinPrice)
-        time.sleep(20)
-        if time.time()>timeout:
-            fiveMinPrice=fiveMinPriceApiCall()
+#def calculate():
+#    global fiveMinPrice
+#    currentPrice= currentPriceApiCall()
+#    compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+#    if time.time()>timeout:
+#        fiveMinPrice=fiveMinPriceApiCall()
+#        print ("Ran 5 minute")
+#    return compare,currentPrice
+    
+
+def buy():
+    global bank
+    ableToSpend= bank * .10
+    bank = bank -ableToSpend
+    print ("Bank total after buy: ", bank)
+    return ableToSpend,bank
+    
+    
+def sell():
+    currentPrice = currentPriceApiCall()
+    global bank
+    owned = Bitcoin * currentPrice
+    bank = owned+ bank
+    print ("Bank total after sell : ", bank)
+    return bank
 
 
 
-calculate()
-#if __name__=='__main__':
-    #p1 = Process(target=calculate)
-    #p1.start()
-    #p2 = Process(target=fiveMinPriceApiCall)
-    #p2.start()
-    #p1.join()
-    #p2.join()
+fiveMinPrice= currentPriceApiCall()
+currentPrice= currentPriceApiCall()
+compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice
+print (compare)
+while True:
+    if compare > .1:
+        spend,bank=buy()
+        Bitcoin= spend / currentPrice
+        print ("Bitcoin amount",Bitcoin)
+        print (bank)
+    if compare < 0:
+        sell()
+        print ("Bitcoin sold",Bitcoin)
+    if compare > .15:
+        sell()
+        print("Bitcoin sold: ",Bitcoin)
+    if time.time()>timeout1:
+         currentPrice= currentPriceApiCall()
+         compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+         print ("Compare and Current Price updated")
+         print ("Compare=: " ,compare)
+    if time.time()>timeout2:
+        fiveMinPrice=fiveMinPriceApiCall()
+        print ("FiveminPrice has been updated")
+    time.sleep(20)
+
+        
+
+
+
+
+
+    
 
 
