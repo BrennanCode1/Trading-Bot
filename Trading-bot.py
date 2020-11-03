@@ -4,18 +4,20 @@ from pprint import pprint
 from apikey import api_key
 from multiprocessing import Process
 from threading import Timer
+import time
+import datetime
 import sys
 import pandas as pd
 import json 
 import requests
-import time
 
 timeout=time.time() + 60*5
-timeout1=time.time() + 60*.5
+timeout1=time.time() + 60*.3
 timeout2=time.time() + 60*2
  
 bank = 500
 owned =0 
+Bitcoin=0
 
 def currentPriceApiCall():
     cc = ForeignExchange(key=api_key)
@@ -50,7 +52,7 @@ def buy():
     
 def sell():
     currentPrice = currentPriceApiCall()
-    global bank
+    global bank, Bitcoin
     owned = Bitcoin * currentPrice
     bank = owned+ bank
     print ("Bank total after sell : ", bank)
@@ -68,7 +70,7 @@ while True:
         Bitcoin= spend / currentPrice
         print ("Bitcoin amount",Bitcoin)
         print (bank)
-    if compare < 0:
+    if compare < -.1:
         sell()
         print ("Bitcoin sold",Bitcoin)
     if compare > .15:
@@ -78,10 +80,11 @@ while True:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
          print ("Compare and Current Price updated")
-         print ("Compare=: " ,compare)
+         print ("Compare: " ,compare)
     if time.time()>timeout2:
         fiveMinPrice=fiveMinPriceApiCall()
         print ("FiveminPrice has been updated")
+        timeout2=time.time() + 60*2
     time.sleep(20)
 
         
