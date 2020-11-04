@@ -64,23 +64,17 @@ def sell():
 fiveMinPrice= currentPriceApiCall()
 currentPrice= currentPriceApiCall()
 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice
-print (compare)
 while True:
     if compare > .1:
         spend,bank=buy()
         Bitcoin= spend / currentPrice
         print ("Bitcoin amount",Bitcoin)
+        compare1=compare
         time.sleep(60)
         if Bitcoin > 0:
             TotalBitcoin = Bitcoin + TotalBitcoin
-            compare1=compare
-    if TotalBitcoin > 0:
-        if compare < -.1:
-            sell()
-            TotalBitcoin=0
-        if compare > compare1 + .1:
-            sell()
-            TotalBitcoin=0
+            currentPrice= currentPriceApiCall()
+            compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
     if time.time()>timeout1:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
@@ -91,12 +85,13 @@ while True:
     if time.time()>timeout2:
         fiveMinPrice=fiveMinPriceApiCall()
         print ("FiveminPrice has been updated")
-        timeout2=time.time() + 60*5
-
+        timeout2=time.time() + 60*30      
+    if TotalBitcoin > 0:
+        if compare < -.1:
+            sell()
+            TotalBitcoin=0
+        if compare > compare1:
+            sell()
+            TotalBitcoin=0
         
 
-
-
-
-
-    
