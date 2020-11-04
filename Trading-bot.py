@@ -70,7 +70,6 @@ while True:
         spend,bank=buy()
         Bitcoin= spend / currentPrice
         print ("Bitcoin amount",Bitcoin)
-        print ("bank total:",bank)
         time.sleep(60)
         if Bitcoin > 0:
             TotalBitcoin = Bitcoin + TotalBitcoin
@@ -86,6 +85,7 @@ while True:
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
          print ("Compare and Current Price updated")
          print ("Compare: " ,compare)
+         print ("Total Bitcoin: ", TotalBitcoin)
          timeout1=time.time() + 60*.5
     if time.time()>timeout2:
         fiveMinPrice=fiveMinPriceApiCall()
