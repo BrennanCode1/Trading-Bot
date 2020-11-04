@@ -11,12 +11,13 @@ import pandas as pd
 import json 
 import requests
 
-timeout1=time.time() + 60*.3
+timeout1=time.time() + 60*.5
 timeout2=time.time() + 60*5
  
 bank = 500
 owned =0 
 Bitcoin=0
+TotalBitcoin=0
 
 def currentPriceApiCall():
     cc = ForeignExchange(key=api_key)
@@ -50,11 +51,12 @@ def buy():
     
     
 def sell():
+    global bank , Bitcoin
     currentPrice = currentPriceApiCall()
-    global bank, Bitcoin
-    owned = Bitcoin * currentPrice
+    owned = TotalBitcoin * currentPrice
     bank = owned+ bank
     print ("Bank total after sell : ", bank)
+    print ("Bitcoin sold",TotalBitcoin)
     return bank
 
 
@@ -68,23 +70,27 @@ while True:
         spend,bank=buy()
         Bitcoin= spend / currentPrice
         print ("Bitcoin amount",Bitcoin)
-        print (bank)
-    if compare < -.1:
-        sell()
-        print ("Bitcoin sold",Bitcoin)
-    if compare > .15:
-        sell()
-        print("Bitcoin sold: ",Bitcoin)
+        print ("bank total:",bank)
+        time.sleep(60)
+        if Bitcoin > 0:
+            TotalBitcoin = Bitcoin + TotalBitcoin
+    if TotalBitcoin > 0:
+        if compare < -.1:
+            sell()
+            TotalBitcoin=0
+        if compare > .2:
+            sell()
+            TotalBitcoin=0
     if time.time()>timeout1:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
          print ("Compare and Current Price updated")
          print ("Compare: " ,compare)
+         timeout1=time.time() + 60*.5
     if time.time()>timeout2:
         fiveMinPrice=fiveMinPriceApiCall()
         print ("FiveminPrice has been updated")
         timeout2=time.time() + 60*5
-    time.sleep(20)
 
         
 
