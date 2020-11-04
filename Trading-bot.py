@@ -12,7 +12,7 @@ import json
 import requests
 
 timeout1=time.time() + 60*.5
-timeout2=time.time() + 60*5
+timeout2=time.time() + 60*30
  
 bank = 500
 owned =0 
@@ -73,11 +73,12 @@ while True:
         time.sleep(60)
         if Bitcoin > 0:
             TotalBitcoin = Bitcoin + TotalBitcoin
+            compare1=compare
     if TotalBitcoin > 0:
         if compare < -.1:
             sell()
             TotalBitcoin=0
-        if compare > .2:
+        if compare > compare1 + .1:
             sell()
             TotalBitcoin=0
     if time.time()>timeout1:
@@ -99,5 +100,3 @@ while True:
 
 
     
-
-
