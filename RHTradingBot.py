@@ -25,7 +25,7 @@ Bitcoin=0
 TotalBitcoin=0
 crypto = 0
 bitcoinUSD=0
-compare1=0
+compare1=.1
 
 login = r.login('Username','Password')
 
