@@ -13,6 +13,8 @@ import sys
 import pandas as pd
 import json 
 import requests
+import json
+import pprint
 
 timeout1=time.time() + 60*.5
 timeout2=time.time() + 60*30
@@ -21,6 +23,7 @@ bank=0
 owned =0 
 Bitcoin=0
 TotalBitcoin=0
+crypto = 0
 
 login = r.login('USERNAME','PASSWORD')
 
@@ -30,8 +33,6 @@ def buyingPower():
     bank= float(data["buying_power"])
     return bank
 
-def bitcoinHoldings():
-    print(r.account.build_holdings(with_dividends=False))
 
 def currentPriceApiCall():
     cc = ForeignExchange(key=api_key)
@@ -54,7 +55,7 @@ def buy():
     
     
 def sell():
-    global bank , bitcoinHoldings
+    global bank
     r.order_sell_crypto_by_quantity('BTC',)
     bank = buyingPower()
     print ("Bank total after sell : ", bank)

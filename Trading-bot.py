@@ -80,7 +80,24 @@ while True:
         if Bitcoin > 0:
             TotalBitcoin = Bitcoin + TotalBitcoin
             currentPrice= currentPriceApiCall()
+            compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice
+    while TotalBitcoin > 0:
+        if compare < -.1:
+            sell()
+            TotalBitcoin=0
+        if compare > compare1+.1:
+            sell()
+            TotalBitcoin=0
+        if time.time()>timeout1:
+            currentPrice= currentPriceApiCall()
             compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+            print ("Compare and Current Price updated")
+            print ("Total Bitcoin: ", TotalBitcoin)
+            timeout1=time.time() + 60*.5
+        if time.time()>timeout2:
+            fiveMinPrice=fiveMinPriceApiCall()
+            print ("Thirtymin has been updated")
+            timeout2=time.time() + 60*30  
     if time.time()>timeout1:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
@@ -91,11 +108,3 @@ while True:
         fiveMinPrice=fiveMinPriceApiCall()
         print ("Thirtymin has been updated")
         timeout2=time.time() + 60*30      
-    if TotalBitcoin > 0:
-        if compare < -.1:
-            sell()
-            TotalBitcoin=0
-        if compare > compare1:
-            sell()
-            TotalBitcoin=0
-    
