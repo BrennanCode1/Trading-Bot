@@ -15,7 +15,7 @@ import json
 import requests
 import json
 import pprint
-login = r.login('USERNAME','PASSWORD')
+login = r.login('Username','Password')
 
 def buyingPower():
     data=r.load_phoenix_account(info=None)
@@ -32,6 +32,6 @@ class read_data(object):
 
 
 p = read_data(obj)
-amount=p.crypto["equity"]["amount"]
-
+amount=float(p.crypto["equity"]["amount"])
+print(amount)
 

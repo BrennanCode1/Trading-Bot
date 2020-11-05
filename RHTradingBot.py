@@ -25,8 +25,9 @@ Bitcoin=0
 TotalBitcoin=0
 crypto = 0
 bitcoinUSD=0
+compare1=0
 
-login = r.login('USERNAME','PASSWORD')
+login = r.login('Username','Password')
 
 class read_data(object):
   def __init__(self, jdata):
@@ -59,7 +60,8 @@ def sell():
     amountParse=buyingPower()
     obj=json.dumps(amountParse)
     p = read_data(obj)
-    bitcoinUSD=p.crypto["equity"]["amount"]
+    bitcoinUSD=float(p.crypto["equity"]["amount"])
+
     r.order_sell_crypto_by_price('BTC',bitcoinUSD)
     bank=bankAmount()
     print ("Bank total after sell : ", bank)
@@ -69,7 +71,7 @@ def sell():
 amountParse=buyingPower()
 obj=json.dumps(amountParse)
 p = read_data(obj)
-bitcoinUSD=p.crypto["equity"]["amount"]
+bitcoinUSD=float(p.crypto["equity"]["amount"])
 
 bank=bankAmount()
 
@@ -82,7 +84,7 @@ print ("Starting Bank Value:",bank)
 print ("Starting BitcoinUSD Value:",bitcoinUSD)
 
 while True:
-    if compare > .1:
+    if compare > .2:
         spend,bank=buy()
         if spend > .16:
             r.order_buy_crypto_by_price('BTC',spend)
@@ -93,16 +95,18 @@ while True:
             amountParse=buyingPower()
             obj=json.dumps(amountParse)
             p = read_data(obj)
-            bitcoinUSD=p.crypto["equity"]["amount"]
-            time.sleep(60)
+            bitcoinUSD=float(p.crypto["equity"]["amount"])
             if bitcoinUSD > 0:
                 currentPrice= currentPriceApiCall()
                 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+            time.sleep(60)
     while bitcoinUSD > 0:
             if compare < -.5:
                 sell()
-            if compare > compare1:
+                bitcoinUSD=0
+            if compare > compare1+.1:
                 sell()
+                bitcoinUSD=0
             if time.time()>timeout1:
                 currentPrice= currentPriceApiCall()
                 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
@@ -113,14 +117,15 @@ while True:
                 fiveMinPrice=currentPriceApiCall()
                 print ("Thirtymin has been updated")
                 timeout2=time.time() + 60*60  
+    print("")
     if time.time()>timeout1:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
-         print ("Compare and Current Price updated")
+         print ("Compare and Current Price updated Outside of While Function")
          print ("Total Bitcoin: ", bitcoinUSD)
          timeout1=time.time() + 60*.5
     if time.time()>timeout2:
         fiveMinPrice=currentPriceApiCall()
-        print ("Thirtymin has been updated")
+        print ("Thirtymin has been updated Outside of While Function")
         timeout2=time.time() + 60*60 
     
