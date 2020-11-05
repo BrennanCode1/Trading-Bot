@@ -24,11 +24,19 @@ owned =0
 Bitcoin=0
 TotalBitcoin=0
 crypto = 0
+bitcoinUSD=0
 
 login = r.login('USERNAME','PASSWORD')
 
+class read_data(object):
+  def __init__(self, jdata):
+    self.__dict__ = json.loads(jdata)
 
 def buyingPower():
+    data=r.load_phoenix_account(info=None)
+    return data
+
+def bankAmount():
     data=r.profiles.load_account_profile(info=None)
     bank= float(data["buying_power"])
     return bank
@@ -40,62 +48,79 @@ def currentPriceApiCall():
     currentPrice=float (data["5. Exchange Rate"]) 
     return currentPrice
 
-def fiveMinPriceApiCall():
-    cc = ForeignExchange(key=api_key)
-    data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
-    fiveMinPrice=float (data["5. Exchange Rate"])
-    return fiveMinPrice
-          
 
 def buy():
-    global bank
-    ableToSpend= bank * .10
-    bank=buyingPower()
+    bank=bankAmount()
+    ableToSpend= float(bank * .10)
     return ableToSpend,bank
     
     
 def sell():
-    global bank
-    r.order_sell_crypto_by_quantity('BTC',)
-    bank = buyingPower()
+    amountParse=buyingPower()
+    obj=json.dumps(amountParse)
+    p = read_data(obj)
+    bitcoinUSD=p.crypto["equity"]["amount"]
+    r.order_sell_crypto_by_price('BTC',bitcoinUSD)
+    bank=bankAmount()
     print ("Bank total after sell : ", bank)
-    print ("Bitcoin sold",TotalBitcoin)
-    return bank
+    print ("Bitcoin sold for",bitcoinUSD)
+    return bitcoinUSD
 
+amountParse=buyingPower()
+obj=json.dumps(amountParse)
+p = read_data(obj)
+bitcoinUSD=p.crypto["equity"]["amount"]
 
-bank =buyingPower()
+bank=bankAmount()
+
 fiveMinPrice= currentPriceApiCall()
 currentPrice= currentPriceApiCall()
 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice
 buycount=0
-print ("Starting Bank Value",bank)
+
+print ("Starting Bank Value:",bank)
+print ("Starting BitcoinUSD Value:",bitcoinUSD)
+
 while True:
     if compare > .1:
         spend,bank=buy()
-        if spend > .15:
+        if spend > .16:
             r.order_buy_crypto_by_price('BTC',spend)
             compare1=compare
-            time.sleep(60)
             buycount+=1
+            print ("Bitcoin Bought USD amount", spend)
             print ("Amount of buys made",buycount)
-            if Bitcoin > 0:
+            amountParse=buyingPower()
+            obj=json.dumps(amountParse)
+            p = read_data(obj)
+            bitcoinUSD=p.crypto["equity"]["amount"]
+            time.sleep(60)
+            if bitcoinUSD > 0:
                 currentPrice= currentPriceApiCall()
                 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+    while bitcoinUSD > 0:
+            if compare < -.5:
+                sell()
+            if compare > compare1:
+                sell()
+            if time.time()>timeout1:
+                currentPrice= currentPriceApiCall()
+                compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
+                print ("Compare and Current Price updated")
+                print ("Total Bitcoin: ", bitcoinUSD)
+                timeout1=time.time() + 60*.5
+            if time.time()>timeout2:
+                fiveMinPrice=currentPriceApiCall()
+                print ("Thirtymin has been updated")
+                timeout2=time.time() + 60*60  
     if time.time()>timeout1:
          currentPrice= currentPriceApiCall()
          compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice 
          print ("Compare and Current Price updated")
-         print ("Total Bitcoin: ", TotalBitcoin)
+         print ("Total Bitcoin: ", bitcoinUSD)
          timeout1=time.time() + 60*.5
     if time.time()>timeout2:
-        fiveMinPrice=fiveMinPriceApiCall()
+        fiveMinPrice=currentPriceApiCall()
         print ("Thirtymin has been updated")
-        timeout2=time.time() + 60*30      
-    if TotalBitcoin > 0:
-        if compare < -.1:
-            sell()
-            TotalBitcoin=0
-        if compare > compare1:
-            sell()
-            TotalBitcoin=0
+        timeout2=time.time() + 60*60 
     
