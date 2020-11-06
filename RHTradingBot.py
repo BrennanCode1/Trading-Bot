@@ -26,7 +26,7 @@ TotalBitcoin=0
 crypto = 0
 bitcoinUSD=1
 compare1=.01
-login = r.login('USERNAME','PASSWORD')
+login = r.login('','')
 
 class read_data(object):
   def __init__(self, jdata):
@@ -43,7 +43,7 @@ def bankAmount():
 
 
 def currentPriceApiCall():
-    cc = ForeignExchange(key='apikey')
+    cc = ForeignExchange(key='')
     data, _ = cc.get_currency_exchange_rate(from_currency='BTC',to_currency='USD')
     currentPrice=float (data["5. Exchange Rate"]) 
     return currentPrice
@@ -82,26 +82,25 @@ print ("Starting Bank Value:",bank)
 print ("Starting BitcoinUSD Value:",bitcoinUSD)
 
 while True:
-    if compare > .25:
+    if compare > .2:
         spend,bank=buy()
         if spend > .16:
             r.order_buy_crypto_by_price('BTC',spend)
             compare1=compare
             buycount+=1
-            BitcoinUSD+=1
+            bitcoinUSD+=1
             print ("Bitcoin Bought USD amount", spend)
             print ("Amount of buys made",buycount)
-                spend=0
-            time.sleep(60)
+            spend=0
             if bitcoinUSD > 0:
                 currentPrice= currentPriceApiCall()
                 compare = 100 * (currentPrice - fiveMinPrice) / fiveMinPrice
     while bitcoinUSD > 0:
-            if compare < -.5:
+            if compare < -1:
                 sell()
                 bitcoinUSD=0
                 time.sleep(180)
-            if compare > compare1+.1:
+            if compare > compare1+.60:
                 sell()
                 bitcoinUSD=0
                 time.sleep(180)
